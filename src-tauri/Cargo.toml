@@ -1,0 +1,24 @@
+[package]
+name = "candid"
+version = "0.1.0"
+description = "Private local student calendar"
+authors = ["Candid contributors"]
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/webwizarding/candid"
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-fs = "2"
+tauri-plugin-opener = "2"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls"] }
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

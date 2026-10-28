@@ -1,0 +1,66 @@
+name: Windows release
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing release tag to build and attach installers to
+        required: true
+        default: v0.1.0
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-release-${{ inputs.tag }}
+  cancel-in-progress: false
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    permissions:
+      contents: write
+    env:
+      RELEASE_TAG: ${{ inputs.tag }}
+    steps:
+      - name: Check out release source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+          cache: npm
+      - name: Set up Rust
+        shell: pwsh
+        run: |
+          rustup toolchain install stable --profile minimal --no-self-update
+          rustup default stable
+      - name: Install locked dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Fetch locked native dependencies
+        run: cargo fetch --manifest-path src-tauri/Cargo.toml --locked --target x86_64-pc-windows-msvc
+      - name: Collect third-party notices
+        run: npm run release:notices
+      - name: Validate source
+        run: npm run lint
+      - name: Run unit tests
+        run: npm test
+      - name: Build Windows installers
+        run: npm run desktop:build -- --bundles nsis,msi
+      - name: Upload installers and checksums to release
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $assets = @(Get-ChildItem src-tauri/target/release/bundle -Recurse -File | Where-Object { $_.Extension -in '.exe', '.msi' } | Sort-Object Name)
+          if ($assets.Count -lt 2) { throw 'Expected both EXE and MSI installers.' }
+          $sums = @($assets | ForEach-Object { '{0}  {1}' -f (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant(), $_.Name })
+          $checksumPath = Join-Path $PWD 'SHA256SUMS-windows-x64.txt'
+          [IO.File]::WriteAllText($checksumPath, ($sums -join "`n") + "`n", [Text.UTF8Encoding]::new($false))
+          $paths = @($assets | ForEach-Object { $_.FullName }) + @($checksumPath)
+          & gh release upload $env:RELEASE_TAG @paths --repo $env:GITHUB_REPOSITORY --clobber
+          if ($LASTEXITCODE -ne 0) { throw 'Release asset upload failed.' }
