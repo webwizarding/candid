@@ -137,9 +137,11 @@ test("keyboard create, search, theme and focus timer", async ({ page }) => {
   await page.keyboard.press("n");
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await page.keyboard.press("Control+k");
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
   await page
     .getByRole("button", { name: "Toggle light or dark theme" })
     .click();

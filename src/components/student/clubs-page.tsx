@@ -20,6 +20,8 @@ import {
   clubPacket,
   validateClubPacket,
 } from "@/lib/clubs";
+import { useTorSync } from "@/hooks/use-tor-sync";
+import { TorPairControls } from "./tor-pair-controls";
 import { ClubPeer, readPairing } from "@/lib/club-peer";
 import { downloadFile, readSmallFile } from "@/lib/files";
 import { formatShort, formatTimeRange, toKey } from "@/lib/dates";
@@ -32,6 +34,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Field } from "@/components/dialogs/field";
 
@@ -40,12 +43,19 @@ function PeerPanel({
   onClose,
   club,
   onJoin,
+  onTorActivity,
 }: {
   open: boolean;
   onClose: () => void;
   club?: Club;
   onJoin: (id: string) => void;
+  onTorActivity: (phase: string) => void;
 }) {
+  const tor = useTorSync();
+  useEffect(() => {
+    onTorActivity(tor.phase);
+  }, [tor.phase, onTorActivity]);
+  const [mode, setMode] = useState<"nearby" | "tor">("nearby");
   const [status, setStatus] = useState("Not connected");
   const [code, setCode] = useState("");
   const [remote, setRemote] = useState("");
@@ -100,121 +110,164 @@ function PeerPanel({
       <DialogContent className="max-h-[92dvh] overflow-y-auto sm:max-w-[620px]">
         <DialogTitle>Pair a club with a peer</DialogTitle>
         <DialogDescription>
-          Experimental direct local-network sync. No signaling server, STUN or
-          relay. Both people must keep the Clubs page open. Campus network
-          isolation may block pairing.
+          {mode === "tor" ? (
+            "Optional private internet pairing through your separate Tor runtime."
+          ) : (
+            <>
+              Experimental direct local-network sync. No signaling server, STUN
+              or relay. Both people must keep the Clubs page open. Campus
+              network isolation may block pairing.
+            </>
+          )}
         </DialogDescription>
-        <div className="peer-status" role="status">
-          <Radio size={16} />
-          {pairedClub ? `${pairedClub} · ` : ""}
-          {status}
-        </div>
-        <p className="text-xs text-fg-2 leading-relaxed">
-          Exchange codes privately. A paired peer can read and edit this club.
-          Personal calendars and assignments are never included. Closing this
-          dialog keeps the connection; leaving Clubs disconnects it.
-        </p>
-        <div className="grid sm:grid-cols-2 gap-3">
-          <Button
-            disabled={busy || !club}
-            onClick={() =>
-              void run(async () => {
-                setHost(true);
-                setCode(await createPeer(club!).offer());
-                setStatus("Offer ready · send it to your peer");
-              })
-            }
-          >
-            1. Create offer for {club?.name ?? "a club"}
-          </Button>
-          <Button
-            disabled={busy || !remote.trim()}
-            onClick={() =>
-              void run(async () => {
-                const offer = readPairing(remote);
-                if (offer.description.type !== "offer")
-                  throw new Error("Paste an offer to create an answer.");
-                useClubStore.getState().mergePacket({
-                  format: "calender-club",
-                  version: 1,
-                  club: { ...offer.club, records: [] },
-                });
-                onJoin(offer.club.id);
-                setHost(false);
-                setCode(await createPeer(offer.club).answer(remote));
-                setStatus("Answer ready · send it back to the host");
-              })
-            }
-          >
-            Join offer & create answer
-          </Button>
-        </div>
-        <Field label="Peer’s pairing code" htmlFor="peer-remote">
-          <Textarea
-            id="peer-remote"
-            rows={3}
-            maxLength={100000}
-            placeholder="Paste their complete offer or answer here"
-            value={remote}
-            onChange={(e) => setRemote(e.target.value)}
-          />
-        </Field>
-        {host && (
-          <Button
-            disabled={busy || !remote.trim()}
-            onClick={() =>
-              void run(async () => {
-                await peer.current?.accept(remote);
-                setStatus("Connecting · keep both peers online");
-              })
-            }
-          >
-            3. Accept peer’s answer
-          </Button>
-        )}
-        {code && (
-          <Field
-            label={
-              host
-                ? "2. Send this offer to your peer"
-                : "2. Send this answer back to the host"
-            }
-            htmlFor="peer-code"
-          >
-            <Textarea
-              id="peer-code"
-              value={code}
-              readOnly
-              rows={3}
-              onFocus={(e) => e.target.select()}
-            />
-            <Button
-              size="sm"
-              onClick={() =>
-                downloadFile("candid-pairing.txt", code, "text/plain")
-              }
-            >
-              Save pairing code
-            </Button>
-          </Field>
-        )}
-        <div className="flex justify-between gap-2">
-          <Button
-            onClick={() => {
+        <Tabs
+          value={mode}
+          onValueChange={(value) => {
+            if (value === mode) return;
+            if (value === "nearby") tor.stop();
+            else {
               peer.current?.close();
               peer.current = null;
               sharedId.current = null;
               setStatus("Disconnected");
-              setPairedClub(null);
               setCode("");
-            }}
-          >
-            Disconnect
-          </Button>
-          <Button variant="brand" onClick={onClose}>
-            Back to dashboard
-          </Button>
-        </div>
+              setRemote("");
+            }
+            setMode(value as "nearby" | "tor");
+          }}
+        >
+          <TabsList className="h-10 max-w-full" aria-label="Pairing connection">
+            <TabsTrigger
+              value="nearby"
+              className="px-3 text-fg-2! data-active:text-fg!"
+            >
+              Nearby
+            </TabsTrigger>
+            <TabsTrigger
+              value="tor"
+              className="px-3 text-fg-2! data-active:text-fg!"
+            >
+              Private internet · Tor
+            </TabsTrigger>
+          </TabsList>
+          <TabsContent value="tor">
+            <TorPairControls tor={tor} club={club} onJoin={onJoin} />
+          </TabsContent>
+          <TabsContent value="nearby" className="grid gap-4">
+            <div className="peer-status" role="status">
+              <Radio size={16} />
+              {pairedClub ? `${pairedClub} · ` : ""}
+              {status}
+            </div>
+            <p className="text-xs text-fg-2 leading-relaxed">
+              Exchange codes privately. A paired peer can read and edit this
+              club. Personal calendars and assignments are never included.
+              Closing this dialog keeps the connection; leaving Clubs
+              disconnects it.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-3">
+              <Button
+                disabled={busy || !club}
+                onClick={() =>
+                  void run(async () => {
+                    setHost(true);
+                    setCode(await createPeer(club!).offer());
+                    setStatus("Offer ready · send it to your peer");
+                  })
+                }
+              >
+                1. Create offer for {club?.name ?? "a club"}
+              </Button>
+              <Button
+                disabled={busy || !remote.trim()}
+                onClick={() =>
+                  void run(async () => {
+                    const offer = readPairing(remote);
+                    if (offer.description.type !== "offer")
+                      throw new Error("Paste an offer to create an answer.");
+                    useClubStore.getState().mergePacket({
+                      format: "calender-club",
+                      version: 1,
+                      club: { ...offer.club, records: [] },
+                    });
+                    onJoin(offer.club.id);
+                    setHost(false);
+                    setCode(await createPeer(offer.club).answer(remote));
+                    setStatus("Answer ready · send it back to the host");
+                  })
+                }
+              >
+                Join offer & create answer
+              </Button>
+            </div>
+            <Field label="Peer’s pairing code" htmlFor="peer-remote">
+              <Textarea
+                id="peer-remote"
+                rows={3}
+                maxLength={100000}
+                placeholder="Paste their complete offer or answer here"
+                value={remote}
+                onChange={(e) => setRemote(e.target.value)}
+              />
+            </Field>
+            {host && (
+              <Button
+                disabled={busy || !remote.trim()}
+                onClick={() =>
+                  void run(async () => {
+                    await peer.current?.accept(remote);
+                    setStatus("Connecting · keep both peers online");
+                  })
+                }
+              >
+                3. Accept peer’s answer
+              </Button>
+            )}
+            {code && (
+              <Field
+                label={
+                  host
+                    ? "2. Send this offer to your peer"
+                    : "2. Send this answer back to the host"
+                }
+                htmlFor="peer-code"
+              >
+                <Textarea
+                  id="peer-code"
+                  value={code}
+                  readOnly
+                  rows={3}
+                  onFocus={(e) => e.target.select()}
+                />
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    downloadFile("candid-pairing.txt", code, "text/plain")
+                  }
+                >
+                  Save pairing code
+                </Button>
+              </Field>
+            )}
+            <div className="flex justify-between gap-2">
+              <Button
+                onClick={() => {
+                  peer.current?.close();
+                  peer.current = null;
+                  sharedId.current = null;
+                  setStatus("Disconnected");
+                  setPairedClub(null);
+                  setCode("");
+                }}
+              >
+                Disconnect
+              </Button>
+            </div>
+          </TabsContent>
+        </Tabs>
+        <Button variant="brand" onClick={onClose}>
+          Back to dashboard
+        </Button>
       </DialogContent>
     </Dialog>
   );
@@ -367,6 +420,7 @@ export function ClubsPage() {
   const [newClub, setNewClub] = useState(false);
   const [name, setName] = useState("");
   const [pairOpen, setPairOpen] = useState(false);
+  const [torActivity, setTorActivity] = useState("off");
   const [recordType, setRecordType] = useState<ClubRecord["type"] | null>(null);
   const [preview, setPreview] = useState<ClubPacket | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -426,7 +480,10 @@ export function ClubsPage() {
         </div>
         <div className="flex gap-2 flex-wrap">
           <Button size="sm" onClick={() => setPairOpen(true)}>
-            <Radio /> Pair & sync
+            <Radio />{" "}
+            {torActivity === "off"
+              ? "Pair & sync"
+              : `Pair & sync · Tor ${torActivity === "starting" ? "starting" : torActivity === "invite" ? "waiting" : "connected"}`}
           </Button>
           <Button
             size="sm"
@@ -619,6 +676,7 @@ export function ClubsPage() {
         onClose={() => setPairOpen(false)}
         club={club}
         onJoin={setSelected}
+        onTorActivity={setTorActivity}
       />
       <Dialog open={newClub} onOpenChange={setNewClub}>
         <DialogContent>

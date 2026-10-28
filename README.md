@@ -58,6 +58,8 @@ Physical event locations offer **Google Maps**, **Apple Maps**, and walking dire
 
 Create a club, then add shared events, tasks and updates. Personal events and assignments are separate and never enter club packets. Club events can be explicitly copied into the personal calendar; these copies do not follow future club edits.
 
+The desktop **Private internet · Tor** option uses a separately installed C Tor runtime and a single-use invite, with a Noise-encrypted club session. Tor starts only when you run it separately. See [Tor setup and limits](docs/TOR_SETUP.md). Both apps must remain online; there is no hosted mailbox or automatic fallback.
+
 Live sharing is experimental and has not been validated across physical devices. For live sharing, both peers open **Clubs → Pair & sync** on a local network. The host creates an offer, shares the pairing code privately, the other peer creates an answer, and the host accepts it. Keep the Clubs page open. Closing the pairing dialog keeps the connection; leaving Clubs closes it. Only the originally paired club syncs until a new pairing is made.
 
 WebRTC provides encrypted peer transport. There is no hosted signaling, STUN or TURN server. Campus network isolation, firewalls, browser local-network policies or mDNS restrictions may prevent a connection. Export/import the club JSON as an asynchronous fallback. Exported club files are readable; transfer privately.
@@ -94,7 +96,7 @@ The former HR page components remain in `src/components/pages/` as reusable sour
 
 ## Publishing builds
 
-Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE/MSI installers from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.1`.
+Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE/MSI installers from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.2`.
 
 ## License
 

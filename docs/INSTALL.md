@@ -1,4 +1,4 @@
-# Installing Candid 0.1.1
+# Installing Candid 0.1.2
 
 Download release files only from https://github.com/webwizarding/candid/releases and compare the SHA-256 hashes with the release checksum files.
 
@@ -19,3 +19,5 @@ The release includes an EXE setup installer and an MSI package. Use one installe
 The release includes a source archive and GitHub's automatic source downloads. The source uses Node.js and Rust. Follow README.md for local development/builds, and see VERIFICATION.md for known limits.
 
 Canvas feed fetching is desktop-only and happens on demand. Local web storage is not encrypted at rest; password-protected exported backups are encrypted. Live club peer sync remains experimental; club file handoff is the tested fallback.
+
+Optional private internet club pairing requires a separately installed C Tor runtime. See [Tor setup](https://github.com/webwizarding/candid/blob/v0.1.2/docs/TOR_SETUP.md). Candid does not start Tor or install a login service. I2P is not implemented.

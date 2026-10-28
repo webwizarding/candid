@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.2 — 2026-10-28
+
+- Added optional desktop Tor pairing through a separately installed C Tor runtime. Hosting uses SAFECOOKIE control authentication and temporary, self-probed v3 onion services.
+- Added single-use, ten-minute invites, Noise-authenticated encrypted club snapshots, guest review before merging, and explicit session cleanup.
+- Kept Tor off during ordinary calendar use, with no bundled runtime, DNS lookup of onion addresses, silent network fallback or invite persistence.
+- Added accessible transport tabs, active Tor status, runtime setup instructions and protocol/browser regression tests.
+- Verified bidirectional synthetic club transfer and the full host flow over two independent local Tor runtimes. Physical cross-device/campus and Windows runtime checks remain outstanding.
+
 ## 0.1.1 — 2026-10-28
 
 - Fixed UCSC Canvas feed requests rejected for a missing user agent; verified with a live feed. Added bounded, validated redirects and actionable HTTP errors.
