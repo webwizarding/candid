@@ -387,7 +387,7 @@ function EventForm({
         <Field
           label="Notes"
           htmlFor="ev-note"
-          hint="Short notes show on the event in the calendar."
+          hint="Notes appear in the event details."
         >
           <Textarea
             id="ev-note"

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.1 — 2026-10-28
+
+- Fixed UCSC Canvas feed requests rejected for a missing user agent; verified with a live feed. Added bounded, validated redirects and actionable HTTP errors.
+- Added click-to-load Google map previews, Apple Maps links, and meeting links for virtual locations.
+- Made event details wrap long imported notes and render Markdown links legibly.
+- Expanded overlapping events into unused columns and sized title/time content to the actual event duration.
+- Excluded packaged release folders from source checks.
+
 ## 0.1.0 — 2026-10-28
 
 Initial public preview of Candid.

@@ -7,10 +7,17 @@ export const MIN_EVENT_MINUTES = 15;
 
 export const minutesToPx = (m: number) => (m / 60) * HOUR_HEIGHT;
 export const pxToMinutes = (px: number) => (px / HOUR_HEIGHT) * 60;
-export const snap = (m: number, step = SNAP_MINUTES) => Math.round(m / step) * step;
-export const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
+export const snap = (m: number, step = SNAP_MINUTES) =>
+  Math.round(m / step) * step;
+export const clamp = (n: number, min: number, max: number) =>
+  Math.min(max, Math.max(min, n));
 
-export type PositionedEvent = { event: CalEvent; column: number; columns: number };
+export type PositionedEvent = {
+  event: CalEvent;
+  column: number;
+  columns: number;
+  span: number;
+};
 
 /**
  * Lays out overlapping timed events side by side. Events are grouped into
@@ -26,7 +33,22 @@ export function layoutDay(events: CalEvent[]): PositionedEvent[] {
 
   const flush = () => {
     const columns = columnEnds.length;
-    for (const c of cluster) out.push({ ...c, columns });
+    for (const c of cluster) {
+      let span = 1;
+      for (let next = c.column + 1; next < columns; next++) {
+        if (
+          cluster.some(
+            (other) =>
+              other.column === next &&
+              c.event.start < other.event.end &&
+              other.event.start < c.event.end,
+          )
+        )
+          break;
+        span++;
+      }
+      out.push({ ...c, columns, span });
+    }
     cluster = [];
     columnEnds = [];
   };

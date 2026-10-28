@@ -330,3 +330,110 @@ test("Canvas file import recognizes a deadline as a task", async ({ page }) => {
     page.getByRole("button", { name: "Canvas lab report", exact: true }),
   ).toBeVisible();
 });
+
+test("event details wrap imported notes and maps load only on request", async ({
+  page,
+}) => {
+  await page.addInitScript(() => {
+    const date = new Date();
+    const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+    const base = {
+      date: key,
+      allDay: false,
+      color: "orange",
+      calendarId: "personal",
+    };
+    localStorage.setItem(
+      "calender:events:v1",
+      JSON.stringify({
+        version: 3,
+        state: {
+          events: [
+            {
+              ...base,
+              id: "meeting-test",
+              title:
+                "Office hours with a long imported course title for readability",
+              start: 540,
+              end: 600,
+              location: "Zoom Online Meeting",
+              note:
+                "[Join office hours](https://example.zoom.us/j/123456789)\n" +
+                "unbroken".repeat(150),
+            },
+            {
+              ...base,
+              id: "map-test",
+              title: "Library study session",
+              start: 600,
+              end: 660,
+              location: "McHenry Library, Santa Cruz",
+            },
+            {
+              ...base,
+              id: "short-test",
+              title: "Quick check-in",
+              start: 660,
+              end: 675,
+            },
+          ],
+        },
+      }),
+    );
+  });
+  let requests = 0;
+  await page.route("https://maps.google.com/**", async (route) => {
+    requests++;
+    await route.fulfill({
+      contentType: "text/html",
+      body: "<p>Map preview</p>",
+    });
+  });
+  for (const width of [1440, 390, 320]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("/");
+    const meeting = page.locator('[data-event-id="meeting-test"]').first();
+    await meeting.scrollIntoViewIfNeeded();
+    await meeting.click();
+    const details = page.locator('[data-slot="popover-content"]');
+    await expect(
+      details.getByRole("link", { name: "Join meeting", exact: true }),
+    ).toBeVisible();
+    await expect(
+      details.getByRole("button", { name: "Show map", exact: true }),
+    ).toHaveCount(0);
+    await expect(
+      details.getByRole("link", { name: "Join office hours", exact: true }),
+    ).toBeVisible();
+    expect(
+      await details.evaluate((el) => el.scrollWidth <= el.clientWidth),
+    ).toBe(true);
+    await page.keyboard.press("Escape");
+    await expect(details).toHaveCount(0);
+    const short = page.locator('[data-event-id="short-test"]').first();
+    expect((await short.boundingBox())!.height).toBeLessThanOrEqual(16);
+    const physical = page.locator('[data-event-id="map-test"]').first();
+    await physical.scrollIntoViewIfNeeded();
+    await physical.click();
+    await expect(
+      details.getByRole("link", { name: "Apple Maps", exact: true }),
+    ).toBeVisible();
+    await expect(details.locator("iframe")).toHaveCount(0);
+    const before = requests;
+    await details
+      .getByRole("button", { name: "Show map", exact: true })
+      .click();
+    await expect(details.locator("iframe")).toHaveAttribute(
+      "src",
+      /maps.google.com\/maps\?q=McHenry/,
+    );
+    await expect.poll(() => requests).toBe(before + 1);
+    expect(
+      await details.evaluate((el) => el.scrollWidth <= el.clientWidth),
+    ).toBe(true);
+    await details
+      .getByRole("button", { name: "Close map", exact: true })
+      .click();
+    await expect(details.locator("iframe")).toHaveCount(0);
+  }
+});

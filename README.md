@@ -46,13 +46,13 @@ Build on each target OS. For just the macOS app, run `npm run desktop:build -- -
 - iCalendar (.ics) import/export, review before import, recurring imports over the next year, timezone definitions, and repeat-import matching. ICS times become local wall-clock times. Timezone definitions are required for named timezones; UTC and floating local times also work.
 - Full planner backups, optionally password-encrypted with AES-256-GCM and PBKDF2-SHA256 (250,000 iterations, random salt/IV). Imports validate data before merging. Matching personal IDs use the imported values; other items remain. There is no password recovery.
 
-## Canvas and Google Maps
+## Canvas and maps
 
 In Canvas, open **Calendar → Calendar Feed** and download the `.ics` file. In Candid, go to **Settings & backups → Connections → Canvas calendar → Import Canvas .ics**. Recognized Canvas assignment deadlines can become tasks; course events go into a separate Canvas calendar. Reimporting preserves task completion and estimates. Canvas controls which events and dates appear in its feed; undated assignments are not imported. See [Canvas's feed guide](https://community.instructure.com/en/kb/articles/662804-unknown).
 
 The desktop app can fetch a private HTTPS calendar feed on `canvas.ucsc.edu` (UC Santa Cruz) or `*.instructure.com` directly on request. The feed URL is held only in memory and cleared after a successful fetch. It is not persisted, logged, relayed, or shared with club peers. Other custom Canvas domains use file import. Browser users also use file import to avoid CORS restrictions and proxy services. Imports are one-way snapshots, not a live subscription; reimport to update. Missing/deleted source items are not automatically removed locally.
 
-Add a location to an event to get **Google Maps** and **Walking directions** links. These use [Google Maps URLs](https://developers.google.com/maps/documentation/urls/get-started), require no API key, and open externally. Only the location text is sent when clicked; no map SDK, geolocation tracking, or automatic map requests are loaded.
+Physical event locations offer **Google Maps**, **Apple Maps**, and walking directions. Event details also have a **Show map** button for an embedded Google map. The map loads only after you click; Google receives the location and normal connection data then. External links open in your browser. No map SDK, geolocation tracking, or automatic map requests are loaded. Virtual locations use a **Join meeting** link when notes contain a recognized meeting URL. Imported Markdown links are displayed as safe, readable HTTPS links.
 
 ## Local club collaboration
 
@@ -94,7 +94,7 @@ The former HR page components remain in `src/components/pages/` as reusable sour
 
 ## Publishing builds
 
-Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE/MSI installers from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.0`.
+Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE/MSI installers from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.1`.
 
 ## License
 

@@ -1,7 +1,18 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { normalizeCanvasFeed, parseCanvasCalendar } from "./canvas";
 import { googleMapsUrl } from "./maps";
 describe("Canvas and location integration", () => {
+  it.skipIf(!process.env.CANDID_TEST_CANVAS_FILE)(
+    "parses an explicitly supplied private feed without logging contents",
+    async () => {
+      const parsed = await parseCanvasCalendar(
+        readFileSync(process.env.CANDID_TEST_CANVAS_FILE!, "utf8"),
+        "2026-10-28",
+      );
+      expect(parsed.events.length).toBeGreaterThan(0);
+    },
+  );
   it("only permits direct fetches to hosted Canvas feed URLs", () => {
     expect(
       normalizeCanvasFeed(

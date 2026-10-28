@@ -24,18 +24,29 @@ fn canvas_url(raw: &str) -> Result<reqwest::Url, String> {
 pub async fn fetch_canvas_feed(url: String) -> Result<String, String> {
     let target = canvas_url(&url)?;
     let client = reqwest::Client::builder()
-        .redirect(reqwest::redirect::Policy::none())
+        .user_agent(concat!("Candid/", env!("CARGO_PKG_VERSION")))
+        .redirect(reqwest::redirect::Policy::custom(|attempt| {
+            // Follow only supported calendar endpoints, never a login page or
+            // arbitrary host. reqwest does not expose response URLs to the UI.
+            if attempt.previous().len() >= 5 || canvas_url(attempt.url().as_str()).is_err() {
+                attempt.stop()
+            } else {
+                attempt.follow()
+            }
+        }))
         .timeout(Duration::from_secs(25))
         .build()
         .map_err(|_| "Could not initialize the secure feed reader.".to_string())?;
-    let mut response = client.get(target).send().await.map_err(|_| {
-        "Canvas could not be reached. Check your connection and feed link.".to_string()
-    })?;
+    let mut response = client
+        .get(target)
+        .header(reqwest::header::ACCEPT, "text/calendar, text/plain;q=0.9")
+        .send()
+        .await
+        .map_err(|_| {
+            "Canvas could not be reached. Check your connection and feed link.".to_string()
+        })?;
     if !response.status().is_success() {
-        return Err(
-            "Canvas did not return a calendar. Refresh the feed link in Canvas and try again."
-                .into(),
-        );
+        return Err(canvas_status_error(response.status()));
     }
     let mut bytes = Vec::new();
     while let Some(chunk) = response
@@ -63,9 +74,37 @@ pub async fn fetch_canvas_feed(url: String) -> Result<String, String> {
     Ok(text)
 }
 
+fn canvas_status_error(status: reqwest::StatusCode) -> String {
+    match status.as_u16() {
+        401 | 403 => "Canvas refused this feed (HTTP 401/403). Copy a fresh Calendar Feed link from Canvas. If Canvas still blocks the request, download the .ics file and import it here.".into(),
+        404 | 410 => "Canvas could not find this feed (HTTP 404/410). Copy a fresh Calendar Feed link from Canvas.".into(),
+        429 => "Canvas is limiting requests (HTTP 429). Wait a minute before trying again.".into(),
+        300..=399 => "Canvas redirected outside its supported calendar feeds. Download the .ics file from Canvas and import it here.".into(),
+        500..=599 => "Canvas is temporarily unavailable. Try again later or import a downloaded .ics file.".into(),
+        _ => format!("Canvas returned HTTP {}. Try again or import a downloaded .ics file.", status.as_u16()),
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::canvas_url;
+    use super::{canvas_status_error, canvas_url, fetch_canvas_feed};
+    #[test]
+    fn explains_http_failures_without_disclosing_feed_urls() {
+        for code in [302, 403, 404, 429, 503] {
+            let error = canvas_status_error(reqwest::StatusCode::from_u16(code).unwrap());
+            assert!(!error.contains("https://"));
+            assert!(!error.is_empty());
+        }
+    }
+
+    #[test]
+    #[ignore = "explicit live smoke test; requires CANDID_CANVAS_TEST_FEED"]
+    fn fetches_live_canvas_feed() {
+        let url = std::env::var("CANDID_CANVAS_TEST_FEED")
+            .expect("Set a private feed for this opt-in test");
+        let result = tauri::async_runtime::block_on(fetch_canvas_feed(url));
+        assert!(result.is_ok(), "{}", result.err().unwrap_or_default());
+    }
     #[test]
     fn allows_supported_canvas_feeds() {
         assert!(canvas_url("https://campus.instructure.com/feeds/calendars/user_test.ics").is_ok());

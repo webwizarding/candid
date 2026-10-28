@@ -1,11 +1,27 @@
 "use client";
 
+import { EventNotes } from "@/components/student/event-notes";
 import { MapLinks } from "@/components/student/map-links";
 import { useMemo } from "react";
-import { CalendarHeartIcon, CopyIcon, MapPinIcon, PencilIcon, PlaneIcon, Trash2Icon } from "lucide-react";
+import {
+  CalendarHeartIcon,
+  CopyIcon,
+  MapPinIcon,
+  PencilIcon,
+  PlaneIcon,
+  Trash2Icon,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Popover, PopoverAnchor, PopoverContent } from "@/components/ui/popover";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Popover,
+  PopoverAnchor,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { StatusBadge } from "@/components/time-off/status-badge";
 import { formatLong, formatTimeRange, formatWeekday } from "@/lib/dates";
 import { formatDuration } from "@/lib/dates";
@@ -19,9 +35,21 @@ import { deleteCalendarEvent } from "./delete-event";
 export function EventPopover() {
   const target = useCalendarStore((s) => s.popover);
   const close = useCalendarStore((s) => s.closePopover);
-  const event = useAppStore((s) => (target?.kind === "event" ? s.events.find((e) => e.id === target.id) : undefined));
-  const holiday = useAppStore((s) => (target?.kind === "holiday" ? s.holidays.find((h) => h.id === target.id) : undefined));
-  const request = useAppStore((s) => (event?.requestId ? s.requests.find((r) => r.id === event.requestId) : undefined));
+  const event = useAppStore((s) =>
+    target?.kind === "event"
+      ? s.events.find((e) => e.id === target.id)
+      : undefined,
+  );
+  const holiday = useAppStore((s) =>
+    target?.kind === "holiday"
+      ? s.holidays.find((h) => h.id === target.id)
+      : undefined,
+  );
+  const request = useAppStore((s) =>
+    event?.requestId
+      ? s.requests.find((r) => r.id === event.requestId)
+      : undefined,
+  );
   const timeFormat = useAppStore((s) => s.settings.timeFormat);
   const duplicateEvent = useAppStore((s) => s.duplicateEvent);
 
@@ -31,7 +59,9 @@ export function EventPopover() {
     () => ({
       current: {
         getBoundingClientRect: () =>
-          rect ? DOMRect.fromRect(rect) : DOMRect.fromRect({ x: 0, y: 0, width: 0, height: 0 }),
+          rect
+            ? DOMRect.fromRect(rect)
+            : DOMRect.fromRect({ x: 0, y: 0, width: 0, height: 0 }),
       },
     }),
     [rect],
@@ -47,15 +77,20 @@ export function EventPopover() {
         align={isMobile ? "center" : "start"}
         sideOffset={8}
         collisionPadding={12}
-        className="w-[300px] max-w-[calc(100vw-24px)] gap-0 p-0"
+        className="w-[380px] max-w-[calc(100vw-24px)] max-h-[min(680px,var(--radix-popover-content-available-height))] overflow-y-auto gap-0 p-0"
         onOpenAutoFocus={(e) => e.preventDefault()}
       >
         {event && (
           <>
             <div className="flex gap-3 p-4">
-              <span className="mt-0.5 size-3 shrink-0 rounded-[4px]" style={{ background: `var(--event-${event.color}-fg)` }} />
+              <span
+                className="mt-0.5 size-3 shrink-0 rounded-[4px]"
+                style={{ background: `var(--event-${event.color}-fg)` }}
+              />
               <div className="grid min-w-0 flex-1 gap-2">
-                <h3 className="t-16 leading-[1.25] break-words text-fg">{event.title}</h3>
+                <h3 className="t-16 leading-[1.35] [overflow-wrap:anywhere] text-fg">
+                  {event.title}
+                </h3>
                 <p className="t-14 salt text-fg-2">
                   {formatWeekday(event.date)}, {formatLong(event.date)}
                 </p>
@@ -66,15 +101,25 @@ export function EventPopover() {
                 </p>
                 {event.location && (
                   <p className="t-14 flex items-center gap-1.5 text-fg-2">
-                    <MapPinIcon className="size-3.5 text-icon" /> <span className="truncate">{event.location}</span>
+                    <MapPinIcon className="size-3.5 text-icon" />{" "}
+                    <span className="min-w-0 [overflow-wrap:anywhere]">
+                      {event.location}
+                    </span>
                   </p>
                 )}
-                {event.location && <MapLinks location={event.location} />}
-                {event.note && !request && <p className="t-14 leading-[1.4] text-fg">{event.note}</p>}
+                <MapLinks
+                  key={event.id}
+                  location={event.location || ""}
+                  notes={event.note}
+                  preview
+                />
+                {event.note && !request && <EventNotes text={event.note} />}
                 {request && (
                   <div className="flex items-center gap-2 pt-1">
                     <StatusBadge status={request.status} />
-                    <span className="t-12 truncate text-fg-2">{request.duration}</span>
+                    <span className="t-12 truncate text-fg-2">
+                      {request.duration}
+                    </span>
                   </div>
                 )}
               </div>
@@ -85,7 +130,10 @@ export function EventPopover() {
                   size="sm"
                   onClick={() => {
                     close();
-                    openOverlay({ kind: "request-details", requestId: request.id });
+                    openOverlay({
+                      kind: "request-details",
+                      requestId: request.id,
+                    });
                   }}
                 >
                   <PlaneIcon /> View request
@@ -147,7 +195,9 @@ export function EventPopover() {
                 <p className="t-14 salt text-fg-2">
                   {formatWeekday(holiday.date)}, {formatLong(holiday.date)}
                 </p>
-                <p className="t-14 salt text-fg-2">National holiday · not counted against your allowance</p>
+                <p className="t-14 salt text-fg-2">
+                  National holiday · not counted against your allowance
+                </p>
               </div>
             </div>
             <div className="flex items-center border-t border-hairline bg-app px-2 py-2">

@@ -1,4 +1,4 @@
-# Installing Candid 0.1.0
+# Installing Candid 0.1.1
 
 Download release files only from https://github.com/webwizarding/candid/releases and compare the SHA-256 hashes with the release checksum files.
 
@@ -12,7 +12,7 @@ Quit an older running copy before opening an updated build. App data stays local
 
 ## Windows — x64
 
-When the Windows build succeeds, the release includes an EXE setup installer and an MSI package. Use one installer, not both. The app requires Microsoft Edge WebView2. These preview installers are not Authenticode-signed, and Windows may show a reputation warning. A successful CI build does not replace testing on your own Windows configuration.
+The release includes an EXE setup installer and an MSI package. Use one installer, not both. The app requires Microsoft Edge WebView2. These preview installers are not Authenticode-signed, and Windows may show a reputation warning. A successful CI build does not replace testing on your own Windows configuration.
 
 ## Source
 
