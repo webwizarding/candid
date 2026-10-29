@@ -2,6 +2,7 @@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CanvasImport } from "./canvas-import";
 import { SettingsHelp } from "./settings-help";
+import { ResetApp } from "./reset-app";
 import { useRef, useState } from "react";
 import {
   Download,
@@ -44,6 +45,7 @@ export function StudentSettings() {
   const [password, setPassword] = useState("");
   const [encrypted, setEncrypted] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState("calendar");
   const [preview, setPreview] = useState<Preview | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const snapshot = (): PlannerBackup => ({
@@ -173,7 +175,7 @@ export function StudentSettings() {
           <p>A few preferences. Full control of your data.</p>
         </div>
       </div>
-      <Tabs defaultValue="calendar" className="settings-layout">
+      <Tabs value={tab} onValueChange={setTab} className="settings-layout">
         <TabsList className="settings-tabs" aria-label="Settings sections">
           <TabsTrigger value="calendar">Calendar</TabsTrigger>
           <TabsTrigger value="connections">Connections</TabsTrigger>
@@ -254,14 +256,16 @@ export function StudentSettings() {
                 </select>
               </label>
             </section>
-            <section className="content-card settings-section">
-              <h2>Course calendars</h2>
-              <p className="!mb-0">
-                {calendars.map((c) => c.name).join(" · ")}. Add courses from the
-                sidebar; use their checkboxes to filter calendar and agenda
-                views.
-              </p>
-            </section>
+            <div className="grid min-w-0 gap-6">
+              <section className="content-card settings-section">
+                <h2>Course calendars</h2>
+                <p className="!mb-0">
+                  {calendars.map((c) => c.name).join(" · ")}. Add courses from
+                  the sidebar; use their checkboxes to filter calendar and
+                  agenda views.
+                </p>
+              </section>
+            </div>
           </div>
         </TabsContent>
         <TabsContent value="connections" className="settings-panel">
@@ -371,26 +375,31 @@ export function StudentSettings() {
           value="privacy"
           className="settings-panel settings-panel-narrow"
         >
-          <section className="content-card settings-section">
-            <h2>
-              <ShieldCheck size={17} /> Private by design
-            </h2>
-            <p>
-              No accounts, ads, analytics or calendar cloud. Personal data is
-              saved in this app’s local web storage. It is not encrypted at
-              rest; use your device’s disk encryption and lock screen. Clearing
-              app or browser data removes your planner, so keep backups.
-            </p>
-            <p>
-              Club pairing uses an encrypted direct peer connection. Paired
-              peers have equal edit access to that club. Club exports and .ics
-              files are unencrypted. Personal data is excluded from club sync.
-            </p>
-            <p className="!mb-0">
-              Reminders appear inside the open app. Background operating-system
-              notifications and automatic cloud integrations are not included.
-            </p>
-          </section>
+          <div className="grid gap-6">
+            <section className="content-card settings-section">
+              <h2>
+                <ShieldCheck size={17} /> Private by design
+              </h2>
+              <p>
+                No accounts, ads, analytics or calendar cloud. Personal data is
+                saved in this app’s local web storage. It is not encrypted at
+                rest; use your device’s disk encryption and lock screen.
+                Clearing app or browser data removes your planner, so keep
+                backups.
+              </p>
+              <p>
+                Club pairing uses an encrypted direct peer connection. Paired
+                peers have equal edit access to that club. Club exports and .ics
+                files are unencrypted. Personal data is excluded from club sync.
+              </p>
+              <p className="!mb-0">
+                Reminders appear inside the open app. Background
+                operating-system notifications and automatic cloud integrations
+                are not included.
+              </p>
+            </section>
+            <ResetApp onBackup={() => setTab("backups")} />
+          </div>
         </TabsContent>
         <TabsContent value="help" className="settings-panel">
           <SettingsHelp />

@@ -1,5 +1,10 @@
 import { create } from "zustand";
 
+let resetting = false;
+export function setStorageResetting(value: boolean) {
+  resetting = value;
+}
+
 export const useStorageStatus = create<{
   error: string | null;
   ready: boolean;
@@ -19,6 +24,7 @@ export const localStorageAdapter = {
     }
   },
   setItem(name: string, value: string) {
+    if (resetting) return;
     try {
       localStorage.setItem(name, value);
     } catch {

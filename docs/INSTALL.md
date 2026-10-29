@@ -1,25 +1,18 @@
-# Installing Candid 0.1.3
+# Installing Candid 0.1.4
 
-Download release files only from https://github.com/webwizarding/candid/releases and compare the SHA-256 hashes with the release checksum files.
+Choose one download from [the latest release](https://github.com/webwizarding/candid/releases/latest):
 
-## macOS — Apple Silicon
+- **Windows** — `Candid-Windows-Setup.exe`. Run the installer. It requires Microsoft Edge WebView2. This installer is unsigned, so Windows may show a reputation warning.
+- **macOS · Apple Silicon** — `Candid-macOS-Apple-Silicon.dmg`. Open it and drag Candid into Applications. Requires macOS 12 or later on an Apple Silicon Mac. This build is ad-hoc signed for integrity, not Developer-ID signed or notarized. An Intel build is not included.
 
-Use the `macos-arm64.dmg` disk image, or unzip `macos-arm64.zip`. Move Candid.app into Applications. This build supports Apple Silicon Macs; it is not an Intel or universal build.
+Download only from the Candid repository. If your device or organization does not permit unsigned builds, follow the source build instructions in README.md. Windows installers are built in GitHub Actions; physical Windows runtime testing is still outstanding.
 
-Candid is ad-hoc signed for bundle integrity, not signed with an Apple Developer ID or notarized. macOS may block downloaded preview builds. If your device or organization will not permit the preview, build the source locally using the README instructions. Release checksums verify file integrity; they are not a publisher certificate.
+Quit the older running app before updating. Updates preserve your existing app data. Export an encrypted backup before updating or moving devices.
 
-Quit an older running copy before opening an updated build. App data stays local to the same app identifier. Keep an encrypted planner backup before updates.
+## Start fresh
 
-## Windows — x64
+Open **Settings → Privacy → Fresh start**. Use **Back up first** if you want a recovery copy. Choose **Reset Candid**, review the summary, type `RESET`, then choose **Erase everything & restart**.
 
-The release includes an EXE setup installer and an MSI package. Use one installer, not both. The app requires Microsoft Edge WebView2. These preview installers are not Authenticode-signed, and Windows may show a reputation warning. A successful CI build does not replace testing on your own Windows configuration.
+Reset permanently clears Candid data and preferences in this installation, including notes and trash, club identity, scheduling, and focus history. There is no Undo. It does not delete exported files or other people's club copies, cancel bookings for guests, or uninstall your separately installed Tor runtime. Your other browser profiles/devices have separate data.
 
-## Source
-
-The release includes a source archive and GitHub's automatic source downloads. The source uses Node.js and Rust. Follow README.md for local development/builds, and see VERIFICATION.md for known limits.
-
-Canvas feed fetching is desktop-only and happens on demand. Local web storage is not encrypted at rest; password-protected exported backups are encrypted. Live club peer sync remains experimental; club file handoff is the tested fallback.
-
-Optional private internet club pairing requires a separately installed C Tor runtime. See [Tor setup](https://github.com/webwizarding/candid/blob/v0.1.3/docs/TOR_SETUP.md). Candid does not start Tor or install a login service. I2P is not implemented.
-
-For offline booking pages, club meeting polls, and Markdown notes, see [scheduling and notes](https://github.com/webwizarding/candid/blob/v0.1.3/docs/ACADEMIC_WORKSPACES.md). This update preserves the existing app identifier and planner data. Export an encrypted backup before updating.
+See [scheduling and notes](ACADEMIC_WORKSPACES.md), [Tor setup](TOR_SETUP.md), and [verification limits](../VERIFICATION.md) for more help. These guides and source code stay in the repository; installer downloads have only the two platform choices.

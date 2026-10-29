@@ -166,6 +166,11 @@ const HISTORY_LIMIT = 100;
 const past: HistoryEntry[] = [];
 let future: HistoryEntry[] = [];
 
+export function clearUndoHistory() {
+  past.length = 0;
+  future = [];
+}
+
 const KEY_LABELS: Record<TrackedKey, string> = {
   workspaceId: "Workspace",
   workspaces: "Workspace",

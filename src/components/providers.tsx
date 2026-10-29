@@ -13,9 +13,17 @@ import { useStudentStore } from "@/stores/student-store";
 import { useStorageStatus } from "@/lib/local-storage";
 import { useCalendarStore } from "@/stores/calendar-store";
 import { toKey } from "@/lib/dates";
+import { RESET_SIGNAL, restartEmptyApp } from "@/lib/reset-app";
 
 /** Loads persisted data once the client has hydrated the seed markup. */
 function StoreHydrator() {
+  useEffect(() => {
+    const reset = (event: StorageEvent) => {
+      if (event.key === RESET_SIGNAL && event.newValue) restartEmptyApp();
+    };
+    window.addEventListener("storage", reset);
+    return () => window.removeEventListener("storage", reset);
+  }, []);
   useEffect(() => {
     Promise.all([
       useAppStore.persist.rehydrate(),

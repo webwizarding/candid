@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.4 — 2026-10-28
+
+- Added **Settings → Privacy → Reset Candid** for a full local fresh start: planner, assignments, calendars, notes and trash, clubs and peer identity, scheduling, focus history and preferences.
+- Added a backup shortcut, a data summary and a required `RESET` confirmation. Reset restarts the app, clears undo history, blocks late autosaves and refreshes other open Candid tabs.
+- Added cancellation, reset failure recovery, multi-tab, persistence and accessibility regression checks.
+- Simplified release downloads to one Windows installer and one macOS Apple Silicon disk image. Licenses remain bundled; source and documentation remain in the repository.
+
 ## 0.1.3 — 2026-10-28
 
 - Added a scheduling dashboard with academic meeting templates, weekly availability, buffers, notice periods, and booking horizons.

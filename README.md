@@ -4,7 +4,12 @@ A private, local student calendar and study planner, built from the original Kar
 
 ## Downloads
 
-Download the current public preview from [GitHub Releases](https://github.com/webwizarding/candid/releases). See [installation notes](docs/INSTALL.md), [changes](CHANGELOG.md) and [verification limits](VERIFICATION.md). The release uses platform-specific filenames and SHA-256 checksums; preview builds are not notarized or publisher-signed.
+Choose your installer:
+
+- [Windows](https://github.com/webwizarding/candid/releases/latest/download/Candid-Windows-Setup.exe)
+- [macOS · Apple Silicon](https://github.com/webwizarding/candid/releases/latest/download/Candid-macOS-Apple-Silicon.dmg)
+
+[Installation help](docs/INSTALL.md) · [Changes](CHANGELOG.md). macOS builds are ad-hoc signed, not notarized; Windows installers are unsigned.
 
 ![Candid in dark mode](artifacts/candid-header-dark.png)
 
@@ -76,7 +81,7 @@ Storage failures show a persistent warning; edits can remain in memory, so expor
 
 ## Interface rules
 
-Shared spacing, readable typography, anchored navigation and progressive disclosure are documented in [the UX rules](docs/UX.md). Settings use focused tabs, including searchable offline Help & FAQ; date selection and calendar day details open on request.
+Shared spacing, readable typography, anchored navigation and progressive disclosure are documented in [the UX rules](docs/UX.md). Settings use focused tabs, including searchable offline Help & FAQ. Privacy includes a full app reset with typed confirmation and a backup shortcut; date selection and calendar day details open on request.
 
 ## Verification
 
@@ -98,7 +103,7 @@ The former HR page components remain in `src/components/pages/` as reusable sour
 
 ## Publishing builds
 
-Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE/MSI installers from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.3`.
+Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE installer from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.4`.
 
 ## License
 

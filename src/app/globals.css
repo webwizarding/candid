@@ -1672,6 +1672,14 @@ button:disabled {
 .settings-help {
   max-width: 1120px;
 }
+.reset-app-button {
+  min-height: 44px;
+  color: #fff;
+  background-color: #a82c3a;
+}
+.reset-app-button:hover:not(:disabled) {
+  background-color: #902532;
+}
 .help-search-row {
   display: flex;
   align-items: center;
@@ -1679,6 +1687,9 @@ button:disabled {
 }
 .help-search-row > select {
   max-width: 240px;
+}
+.help-search-row input[type="search"]::-webkit-search-cancel-button {
+  appearance: none;
 }
 .help-topic-grid {
   display: grid;

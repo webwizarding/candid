@@ -6,11 +6,11 @@ Verified locally on macOS on 2026-10-28.
 | --- | --- |
 | ESLint | Passed |
 | TypeScript | Passed |
-| Unit tests | 65 passed; private-feed parser test opt-in |
+| Unit tests | 67 passed; private-feed parser test opt-in |
 | Rust Canvas URL validation | 3 passed, including UCSC, lookalike rejection and HTTP errors; live fetch smoke test also passed |
 | Production static export | Passed |
 | Native macOS application build | Passed; ad-hoc bundle signature verified |
-| Browser workflow tests | 12 passed; physical LAN test opt-in |
+| Browser workflow tests | 13 passed; physical LAN test opt-in |
 | Accessibility and document overflow | Passed automated WCAG A/AA checks on eight pages, settings tabs and scheduling tabs at 1440×1000, 768×1024, 390×844 and 320×740 |
 | Live peer network test | Not verified; opt-in test skipped in the standard suite |
 | Windows binary/runtime | Not tested on this macOS host |
@@ -36,3 +36,5 @@ Tor follow-up (0.1.2): nine standard native tests pass, including SAFECOOKIE con
 Academic workspaces (0.1.3): a separate offline browser context opens the generated booking HTML, selects a slot and saves a request. The host imports, confirms, creates a calendar event and opens linked notes. Tests cover hidden-calendar/all-day conflicts, buffers, invalid/stale requests, changed availability, duplicate confirmations, public-only share data and UTC calendar export. Notes checks cover autosave/reload, wiki navigation/backlinks/rename, trash recovery, Markdown ZIP interchange, duplicate-path preservation, portable paths, limits, and encrypted backups with both new workspaces. Club polls and votes round-trip through ordinary validated club packets; this does not expand the existing physical-peer verification. Obsidian compatibility is Markdown interchange; live vault folders, attachments and plugins are not implemented.
 
 Help follow-up (0.1.3): Settings includes offline search, a topic filter and keyboard-accessible FAQ disclosures. Responsive accessibility checks include the Help tab with a scheduling answer expanded.
+
+Full reset (0.1.4): tests cover typed confirmation, cancellation, all five persisted workspaces, preferences, session data, late autosave blocking, storage-failure rollback, clearing undo state, and restarting another open Candid tab. The confirmation passes automated accessibility checks on a phone-sized viewport. The standard browser suite passes 13 tests with the physical-LAN test skipped. The normal release now presents one Windows EXE and one Apple Silicon DMG; signing and physical Windows testing limits above still apply.

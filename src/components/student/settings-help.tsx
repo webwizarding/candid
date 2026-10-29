@@ -150,6 +150,11 @@ const topics: { title: string; questions: Answer[] }[] = [
     title: "Backups & privacy",
     questions: [
       {
+        question: "How do I reset the whole app?",
+        answer:
+          "Open Settings → Privacy → Fresh start. Back up first if you want to keep a copy, then choose Reset Candid and type RESET. This erases all Candid data and preferences on this device and restarts the app. There is no Undo. Exported files and other people's club copies stay, and guests are not notified. Import a backup afterward if you want to restore your planner.",
+      },
+      {
         question: "How do I move my planner to another device?",
         answer:
           "In Settings → Backups, enter a password and choose Export backup. Move the .candid file privately to the other device, enter the same password in Backups, and import it. Review before merging. This transfers notes and scheduling too. Personal planner changes do not sync automatically between devices.",
