@@ -12,6 +12,8 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useAppStore } from "@/stores/app-store";
+import { useNotesStore } from "@/stores/notes-store";
+import { noteTitle } from "@/lib/notes";
 import { useStudentStore } from "@/stores/student-store";
 import { useOverlayStore, openOverlay } from "@/stores/overlay-store";
 import { useCalendarStore } from "@/stores/calendar-store";
@@ -29,6 +31,7 @@ export function GlobalSearch() {
   const close = useOverlayStore((s) => s.close);
   const events = useAppStore((s) => s.events);
   const assignments = useStudentStore((s) => s.assignments);
+  const notes = useNotesStore((s) => s.notes);
   const router = useRouter();
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -59,6 +62,8 @@ export function GlobalSearch() {
               ["/assignments", "Assignments"],
               ["/focus", "Focus timer"],
               ["/clubs", "Clubs"],
+              ["/scheduling", "Scheduling"],
+              ["/notes", "Notes"],
               ["/settings", "Settings & backups"],
             ].map(([href, label]) => (
               <CommandItem
@@ -90,6 +95,23 @@ export function GlobalSearch() {
                 <span className="text-xs text-fg-2">{formatShort(e.date)}</span>
               </CommandItem>
             ))}
+          </CommandGroup>
+          <CommandGroup heading="Notes">
+            {notes
+              .filter((n) => !n.deletedAt)
+              .map((n) => (
+                <CommandItem
+                  key={n.id}
+                  value={`${n.path} ${n.body}`}
+                  onSelect={() => {
+                    close();
+                    router.push(`/notes#${encodeURIComponent(n.id)}`);
+                  }}
+                >
+                  <span className="flex-1 truncate">{noteTitle(n.path)}</span>
+                  <span className="text-xs text-fg-2">{n.path}</span>
+                </CommandItem>
+              ))}
           </CommandGroup>
           <CommandGroup heading="Assignments">
             {assignments.map((a) => (

@@ -9,6 +9,7 @@
     "core:default",
     "dialog:allow-save",
     "fs:allow-write-text-file",
+    "fs:allow-write-file",
     {
       "identifier": "opener:allow-open-url",
       "allow": [

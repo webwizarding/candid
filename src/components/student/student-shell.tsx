@@ -4,6 +4,8 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   BookOpen,
+  FileText,
+  CalendarCheck,
   CalendarDays,
   CalendarPlus,
   CheckSquare,
@@ -55,6 +57,8 @@ const NAV = [
   { href: "/assignments", label: "Assignments", icon: CheckSquare },
   { href: "/focus", label: "Focus timer", icon: Clock3 },
   { href: "/clubs", label: "Clubs", icon: Users },
+  { href: "/scheduling", label: "Scheduling", icon: CalendarCheck },
+  { href: "/notes", label: "Notes", icon: FileText },
 ];
 
 function MiniMonth({ onChoose }: { onChoose?: () => void }) {
@@ -147,7 +151,7 @@ function SidebarDatePicker() {
 }
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-  const path = usePathname();
+  const path = usePathname().replace(/\/$/, "") || "/";
   const calendars = useStudentStore((s) => s.calendars);
   const assignments = useStudentStore((s) => s.assignments);
   const [courseOpen, setCourseOpen] = useState(false);
@@ -234,7 +238,7 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
   const { resolvedTheme, setTheme } = useTheme();
   const ready = useStorageStatus((s) => s.ready);
   const error = useStorageStatus((s) => s.error);
-  const path = usePathname();
+  const path = usePathname().replace(/\/$/, "") || "/";
   // Prevent accidental browser navigation from losing an unsaved in-memory edit.
   useEffect(() => {
     if (!error) return;
@@ -343,7 +347,11 @@ export function StudentShell({ children }: { children: React.ReactNode }) {
         className="mobile-bottom-nav md:hidden"
         aria-label="Quick navigation"
       >
-        {NAV.slice(0, 5).map(({ href, label, icon: Icon }) => (
+        {NAV.filter((item) =>
+          ["/", "/assignments", "/scheduling", "/notes", "/clubs"].includes(
+            item.href,
+          ),
+        ).map(({ href, label, icon: Icon }) => (
           <Link
             key={href}
             href={href}

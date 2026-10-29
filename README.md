@@ -45,6 +45,8 @@ Build on each target OS. For just the macOS app, run `npm run desktop:build -- -
 - Local preferences, light/dark appearance, bundled fonts, responsive layouts, reduced-motion support and visible keyboard focus.
 - iCalendar (.ics) import/export, review before import, recurring imports over the next year, timezone definitions, and repeat-import matching. ICS times become local wall-clock times. Timezone definitions are required for named timezones; UTC and floating local times also work.
 - Full planner backups, optionally password-encrypted with AES-256-GCM and PBKDF2-SHA256 (250,000 iterations, random salt/IV). Imports validate data before merging. Matching personal IDs use the imported values; other items remain. There is no password recovery.
+- Local scheduling with meeting templates, availability, buffers, conflict checks, offline guest booking pages, request review and confirmed calendar exports. Club proposals and votes travel through existing peer/file sharing.
+- Markdown notes with folders, daily notes, tags, wiki links, backlinks, linked meeting notes, trash recovery and Obsidian-compatible Markdown ZIP interchange. See [scheduling and notes](docs/ACADEMIC_WORKSPACES.md) for setup and limits.
 
 ## Canvas and maps
 
@@ -70,7 +72,7 @@ Shared records use Lamport revisions and a stable device ID to resolve concurren
 
 Data is saved in the app's local web storage; browser and desktop installations have separate data. There is no account, analytics, calendar cloud or automatic sync service. Local storage is **not encrypted at rest**. Use device disk encryption and a lock screen. Clearing app/browser data removes your planner. Backups are the transfer and recovery mechanism.
 
-Storage failures show a persistent warning; edits can remain in memory, so export before closing if warned. Backups include events, assignments, calendars, preferences and club records. Browser quota is limited; attachments are not supported in the student workspace. Backup files are limited to 10 MB, calendar and peer/club snapshots to 2 MB.
+Storage failures show a persistent warning; edits can remain in memory, so export before closing if warned. Backups include events, assignments, calendars, preferences, club records, notes and scheduling data. Browser quota is limited; attachments are not supported in the student workspace. Backup files are limited to 10 MB, calendar and peer/club snapshots to 2 MB. Notes are limited to 4 MB of text across 1,000 notes.
 
 ## Interface rules
 
@@ -96,7 +98,7 @@ The former HR page components remain in `src/components/pages/` as reusable sour
 
 ## Publishing builds
 
-Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE/MSI installers from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.2`.
+Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE/MSI installers from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.3`.
 
 ## License
 

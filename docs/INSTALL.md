@@ -1,4 +1,4 @@
-# Installing Candid 0.1.2
+# Installing Candid 0.1.3
 
 Download release files only from https://github.com/webwizarding/candid/releases and compare the SHA-256 hashes with the release checksum files.
 
@@ -20,4 +20,6 @@ The release includes a source archive and GitHub's automatic source downloads. T
 
 Canvas feed fetching is desktop-only and happens on demand. Local web storage is not encrypted at rest; password-protected exported backups are encrypted. Live club peer sync remains experimental; club file handoff is the tested fallback.
 
-Optional private internet club pairing requires a separately installed C Tor runtime. See [Tor setup](https://github.com/webwizarding/candid/blob/v0.1.2/docs/TOR_SETUP.md). Candid does not start Tor or install a login service. I2P is not implemented.
+Optional private internet club pairing requires a separately installed C Tor runtime. See [Tor setup](https://github.com/webwizarding/candid/blob/v0.1.3/docs/TOR_SETUP.md). Candid does not start Tor or install a login service. I2P is not implemented.
+
+For offline booking pages, club meeting polls, and Markdown notes, see [scheduling and notes](https://github.com/webwizarding/candid/blob/v0.1.3/docs/ACADEMIC_WORKSPACES.md). This update preserves the existing app identifier and planner data. Export an encrypted backup before updating.

@@ -20,6 +20,9 @@ import {
   clubPacket,
   validateClubPacket,
 } from "@/lib/clubs";
+import { PollCard } from "./coordination-board";
+import { readCoordination } from "@/lib/coordination";
+import Link from "next/link";
 import { useTorSync } from "@/hooks/use-tor-sync";
 import { TorPairControls } from "./tor-pair-controls";
 import { ClubPeer, readPairing } from "@/lib/club-peer";
@@ -479,6 +482,12 @@ export function ClubsPage() {
           </label>
         </div>
         <div className="flex gap-2 flex-wrap">
+          <Button size="sm" asChild>
+            <Link href="/scheduling">
+              <CalendarDays />
+              Scheduling & polls
+            </Link>
+          </Button>
           <Button size="sm" onClick={() => setPairOpen(true)}>
             <Radio />{" "}
             {torActivity === "off"
@@ -576,7 +585,11 @@ export function ClubsPage() {
                     <Plus size={17} />
                   </button>
                 </div>
-                {!live.some((r) => r.type === type) ? (
+                {!live.some(
+                  (r) =>
+                    r.type === type &&
+                    readCoordination(r.body)?.kind !== "vote",
+                ) ? (
                   <p className="club-empty">
                     {type === "event"
                       ? "The next good thing starts with a plan."
@@ -586,85 +599,96 @@ export function ClubsPage() {
                   </p>
                 ) : (
                   live
-                    .filter((r) => r.type === type)
+                    .filter(
+                      (r) =>
+                        r.type === type &&
+                        readCoordination(r.body)?.kind !== "vote",
+                    )
                     .sort((a, b) =>
                       type === "post"
                         ? b.clock - a.clock
                         : a.date.localeCompare(b.date) || a.start - b.start,
                     )
-                    .map((r) => (
-                      <article className="club-record" key={r.id}>
-                        <div className="flex gap-2 items-start">
-                          {type === "task" && (
-                            <input
-                              type="checkbox"
-                              aria-label={`Complete ${r.title}`}
-                              checked={r.done}
-                              onChange={() =>
-                                useClubStore
-                                  .getState()
-                                  .saveRecord(club.id, { ...r, done: !r.done })
-                              }
-                            />
-                          )}
-                          <h3
-                            className={r.done ? "line-through text-fg-2" : ""}
-                          >
-                            {r.title}
-                          </h3>
-                          <button
-                            className="icon-button ml-auto"
-                            aria-label={`Delete ${r.title}`}
-                            onClick={() => remove(r)}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                        {type !== "post" && (
-                          <small>
-                            {formatShort(r.date)}
-                            {type === "event"
-                              ? ` · ${formatTimeRange(r.start, r.end)}`
-                              : r.assignee
-                                ? ` · ${r.assignee}`
-                                : ""}
-                          </small>
-                        )}
-                        {r.body && <p>{r.body}</p>}
-                        <div className="club-record-footer">
-                          <span>{r.authorName}</span>
-                          {type === "event" && (
-                            <button
-                              onClick={() => {
-                                useAppStore.getState().saveEvents([
-                                  {
-                                    id: `club-copy-${club.id}-${r.id}`,
-                                    title: `${club.name} · ${r.title}`,
-                                    date: r.date,
-                                    start: r.start,
-                                    end: r.end,
-                                    allDay: false,
-                                    color: "cyan",
-                                    calendarId: "personal",
-                                    kind: "personal",
-                                    note: r.body,
-                                  },
-                                ]);
-                                toast.success(
-                                  "Copied to your personal calendar",
-                                  {
-                                    description:
-                                      "A personal copy; future club edits do not update it.",
-                                  },
-                                );
-                              }}
+                    .map((r) =>
+                      readCoordination(r.body)?.kind === "poll" ? (
+                        <PollCard key={r.id} club={club} record={r} />
+                      ) : (
+                        <article className="club-record" key={r.id}>
+                          <div className="flex gap-2 items-start">
+                            {type === "task" && (
+                              <input
+                                type="checkbox"
+                                aria-label={`Complete ${r.title}`}
+                                checked={r.done}
+                                onChange={() =>
+                                  useClubStore
+                                    .getState()
+                                    .saveRecord(club.id, {
+                                      ...r,
+                                      done: !r.done,
+                                    })
+                                }
+                              />
+                            )}
+                            <h3
+                              className={r.done ? "line-through text-fg-2" : ""}
                             >
-                              Copy to calendar
+                              {r.title}
+                            </h3>
+                            <button
+                              className="icon-button ml-auto"
+                              aria-label={`Delete ${r.title}`}
+                              onClick={() => remove(r)}
+                            >
+                              <Trash2 size={14} />
                             </button>
+                          </div>
+                          {type !== "post" && (
+                            <small>
+                              {formatShort(r.date)}
+                              {type === "event"
+                                ? ` · ${formatTimeRange(r.start, r.end)}`
+                                : r.assignee
+                                  ? ` · ${r.assignee}`
+                                  : ""}
+                            </small>
                           )}
-                        </div>
-                      </article>
-                    ))
+                          {r.body && <p>{r.body}</p>}
+                          <div className="club-record-footer">
+                            <span>{r.authorName}</span>
+                            {type === "event" && (
+                              <button
+                                onClick={() => {
+                                  useAppStore.getState().saveEvents([
+                                    {
+                                      id: `club-copy-${club.id}-${r.id}`,
+                                      title: `${club.name} · ${r.title}`,
+                                      date: r.date,
+                                      start: r.start,
+                                      end: r.end,
+                                      allDay: false,
+                                      color: "cyan",
+                                      calendarId: "personal",
+                                      kind: "personal",
+                                      note: r.body,
+                                    },
+                                  ]);
+                                  toast.success(
+                                    "Copied to your personal calendar",
+                                    {
+                                      description:
+                                        "A personal copy; future club edits do not update it.",
+                                    },
+                                  );
+                                }}
+                              >
+                                Copy to calendar
+                              </button>
+                            )}
+                          </div>
+                        </article>
+                      ),
+                    )
                 )}
               </section>
             ))}

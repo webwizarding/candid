@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.3 — 2026-10-28
+
+- Added a scheduling dashboard with academic meeting templates, weekly availability, buffers, notice periods, and booking horizons.
+- Added standalone offline booking pages, schedule files/codes, guest request imports, fresh conflict checks, host confirmation, and UTC calendar exports. No hosted service or automatic email delivery is used.
+- Added club meeting proposals and availability votes that reuse existing peer sync and club file handoffs.
+- Added local Markdown notes with folders, daily notes, tags, wiki links, backlinks, rename updates, course/event links, meeting notes, and recoverable trash.
+- Added Markdown vault ZIP import/export for Obsidian interchange, bounded decompression, safe reading without remote image loads, and encrypted-backup coverage for both workspaces.
+- Added responsive, accessible workspace layouts and end-to-end checks for the offline guest-to-host flow, notes, and club coordination.
+
 ## 0.1.2 — 2026-10-28
 
 - Added optional desktop Tor pairing through a separately installed C Tor runtime. Hosting uses SAFECOOKIE control authentication and temporary, self-probed v3 onion services.

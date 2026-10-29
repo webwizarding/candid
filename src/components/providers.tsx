@@ -6,6 +6,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { useIsMobile } from "@/hooks/use-media-query";
 import { useAppStore } from "@/stores/app-store";
+import { useNotesStore } from "@/stores/notes-store";
+import { useSchedulingStore } from "@/stores/scheduling-store";
 import { useClubStore } from "@/stores/club-store";
 import { useStudentStore } from "@/stores/student-store";
 import { useStorageStatus } from "@/lib/local-storage";
@@ -19,6 +21,8 @@ function StoreHydrator() {
       useAppStore.persist.rehydrate(),
       useStudentStore.persist.rehydrate(),
       useClubStore.persist.rehydrate(),
+      useNotesStore.persist.rehydrate(),
+      useSchedulingStore.persist.rehydrate(),
     ])
       .then(() => {
         useCalendarStore.getState().setDate(toKey(new Date()));

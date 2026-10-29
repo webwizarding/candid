@@ -13,6 +13,10 @@ import { useTheme } from "next-themes";
 import { toast } from "sonner";
 import { useAppStore } from "@/stores/app-store";
 import { useStudentStore } from "@/stores/student-store";
+import { useNotesStore } from "@/stores/notes-store";
+import { useSchedulingStore } from "@/stores/scheduling-store";
+import { validateNotes } from "@/lib/notes";
+import { validateScheduling } from "@/lib/scheduling";
 import { useClubStore } from "@/stores/club-store";
 import { decodeBackup, encryptBackup, type PlannerBackup } from "@/lib/backup";
 import { downloadFile, readSmallFile } from "@/lib/files";
@@ -50,6 +54,14 @@ export function StudentSettings() {
     assignments: useStudentStore.getState().assignments,
     settings: useAppStore.getState().settings,
     clubs: useClubStore.getState().clubs,
+    notes: useNotesStore.getState().notes,
+    scheduling: {
+      host: useSchedulingStore.getState().host,
+      availability: useSchedulingStore.getState().availability,
+      types: useSchedulingStore.getState().types,
+      offers: useSchedulingStore.getState().offers,
+      bookings: useSchedulingStore.getState().bookings,
+    },
   });
   const exportBackup = async () => {
     setBusy(true);
@@ -75,33 +87,80 @@ export function StudentSettings() {
   };
   const merge = () => {
     if (!preview) return;
-    if (preview.kind === "ics")
-      useAppStore.getState().saveEvents(preview.events);
-    else {
-      const backup = preview.backup;
-      useAppStore.getState().saveEvents(backup.events);
-      const state = useStudentStore.getState();
-      useStudentStore.setState({
-        calendars: [
-          ...new Map(
-            [...state.calendars, ...backup.calendars].map((c) => [c.id, c]),
-          ).values(),
-        ],
-        assignments: [
-          ...new Map(
-            [...state.assignments, ...backup.assignments].map((a) => [a.id, a]),
-          ).values(),
-        ],
-      });
-      update(backup.settings);
-      for (const club of backup.clubs)
-        useClubStore
-          .getState()
-          .mergePacket({ format: "calender-club", version: 1, club });
+    try {
+      if (preview.kind === "ics")
+        useAppStore.getState().saveEvents(preview.events);
+      else {
+        const backup = preview.backup;
+        const mergedNotes = backup.notes
+          ? validateNotes([
+              ...new Map(
+                [...useNotesStore.getState().notes, ...backup.notes].map(
+                  (n) => [n.id, n],
+                ),
+              ).values(),
+            ])
+          : undefined;
+        const currentScheduling = useSchedulingStore.getState();
+        const mergedScheduling = backup.scheduling
+          ? validateScheduling({
+              ...backup.scheduling,
+              types: [
+                ...new Map(
+                  [...currentScheduling.types, ...backup.scheduling.types].map(
+                    (n) => [n.id, n],
+                  ),
+                ).values(),
+              ],
+              offers: [
+                ...new Map(
+                  [
+                    ...currentScheduling.offers,
+                    ...backup.scheduling.offers,
+                  ].map((n) => [n.id, n]),
+                ).values(),
+              ],
+              bookings: [
+                ...new Map(
+                  [
+                    ...currentScheduling.bookings,
+                    ...backup.scheduling.bookings,
+                  ].map((n) => [n.id, n]),
+                ).values(),
+              ],
+            })
+          : undefined;
+        if (mergedNotes) useNotesStore.setState({ notes: mergedNotes });
+        if (mergedScheduling) useSchedulingStore.setState(mergedScheduling);
+        useAppStore.getState().saveEvents(backup.events);
+        const state = useStudentStore.getState();
+        useStudentStore.setState({
+          calendars: [
+            ...new Map(
+              [...state.calendars, ...backup.calendars].map((c) => [c.id, c]),
+            ).values(),
+          ],
+          assignments: [
+            ...new Map(
+              [...state.assignments, ...backup.assignments].map((a) => [
+                a.id,
+                a,
+              ]),
+            ).values(),
+          ],
+        });
+        update(backup.settings);
+        for (const club of backup.clubs)
+          useClubStore
+            .getState()
+            .mergePacket({ format: "calender-club", version: 1, club });
+      }
+      setPreview(null);
+      setPassword("");
+      toast.success("Imported to this device");
+    } catch (error) {
+      toast.error((error as Error).message);
     }
-    setPreview(null);
-    setPassword("");
-    toast.success("Imported to this device");
   };
   return (
     <div className="scroll-page">

@@ -7,6 +7,7 @@ import {
 } from "./backup";
 import { createStudentSeed } from "./student-seed";
 import { DEFAULT_CALENDARS } from "./student";
+import { defaultAvailability } from "./scheduling";
 const backup: PlannerBackup = {
   format: "calender-backup",
   version: 1,
@@ -18,6 +19,42 @@ const backup: PlannerBackup = {
   clubs: [],
 };
 describe("local backups", () => {
+  it("encrypts and restores notes and scheduling while accepting older backups", async () => {
+    const extended: PlannerBackup = {
+      ...backup,
+      notes: [
+        {
+          id: "note",
+          path: "Classes/Private.md",
+          body: "PRIVATE_NOTE_MARKER",
+          courseId: "",
+          eventId: "",
+          pinned: true,
+          createdAt: "2026-10-28T10:00:00.000Z",
+          updatedAt: "2026-10-28T10:00:00.000Z",
+        },
+      ],
+      scheduling: {
+        host: "PRIVATE_HOST_MARKER",
+        availability: defaultAvailability(),
+        types: [],
+        offers: [],
+        bookings: [],
+      },
+    };
+    const encrypted = await encryptBackup(extended, "a private password");
+    expect(encrypted).not.toContain("PRIVATE_");
+    const restored = await decodeBackup(encrypted, "a private password");
+    expect(restored.notes).toEqual(extended.notes);
+    expect(restored.scheduling).toEqual(extended.scheduling);
+    expect(validateBackup(backup).notes).toBeUndefined();
+    expect(() =>
+      validateBackup({
+        ...extended,
+        notes: [{ ...extended.notes![0], path: "../unsafe.md" }],
+      }),
+    ).toThrow();
+  });
   it("round trips an encrypted backup", async () => {
     const text = await encryptBackup(backup, "a private password");
     expect(text).not.toContain("Classes");

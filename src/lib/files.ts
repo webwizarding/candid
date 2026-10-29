@@ -7,16 +7,14 @@ export async function downloadFile(
 ) {
   try {
     if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
-      const [{ save }, { writeTextFile }] = await Promise.all([
+      const [{ save }, { writeTextFile, writeFile }] = await Promise.all([
         import("@tauri-apps/plugin-dialog"),
         import("@tauri-apps/plugin-fs"),
       ]);
       const path = await save({ defaultPath: name });
       if (!path) return false;
-      await writeTextFile(
-        path,
-        typeof value === "string" ? value : await value.text(),
-      );
+      if (typeof value === "string") await writeTextFile(path, value);
+      else await writeFile(path, new Uint8Array(await value.arrayBuffer()));
       return true;
     }
     const url = URL.createObjectURL(

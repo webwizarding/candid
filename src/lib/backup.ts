@@ -1,3 +1,5 @@
+import { validateNotes, type Note } from "./notes";
+import { validateScheduling, type SchedulingData } from "./scheduling";
 import type { CalEvent, Settings } from "./types";
 import { type Assignment, type CourseCalendar, validDate } from "./student";
 import { type Club, validateClubPacket } from "./clubs";
@@ -10,6 +12,8 @@ export type PlannerBackup = {
   assignments: Assignment[];
   settings: Settings;
   clubs: Club[];
+  notes?: Note[];
+  scheduling?: SchedulingData;
 };
 const colors = ["purple", "blue", "cyan", "green", "orange", "pink"];
 const string = (v: unknown, limit: number): v is string =>
@@ -129,6 +133,10 @@ export function validateBackup(value: unknown): PlannerBackup {
     calendars,
     assignments,
     clubs,
+    ...(p.notes === undefined ? {} : { notes: validateNotes(p.notes) }),
+    ...(p.scheduling === undefined
+      ? {}
+      : { scheduling: validateScheduling(p.scheduling) }),
     settings: {
       weekStartsOn: s.weekStartsOn,
       timeFormat: s.timeFormat,
