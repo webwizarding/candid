@@ -76,7 +76,7 @@ Storage failures show a persistent warning; edits can remain in memory, so expor
 
 ## Interface rules
 
-Shared spacing, readable typography, anchored navigation and progressive disclosure are documented in [the UX rules](docs/UX.md). Settings use focused tabs; date selection and calendar day details open on request.
+Shared spacing, readable typography, anchored navigation and progressive disclosure are documented in [the UX rules](docs/UX.md). Settings use focused tabs, including searchable offline Help & FAQ; date selection and calendar day details open on request.
 
 ## Verification
 

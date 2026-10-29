@@ -8,6 +8,7 @@
 - Added local Markdown notes with folders, daily notes, tags, wiki links, backlinks, rename updates, course/event links, meeting notes, and recoverable trash.
 - Added Markdown vault ZIP import/export for Obsidian interchange, bounded decompression, safe reading without remote image loads, and encrypted-backup coverage for both workspaces.
 - Added responsive, accessible workspace layouts and end-to-end checks for the offline guest-to-host flow, notes, and club coordination.
+- Added searchable offline help in Settings, with plain explanations for booking files, Canvas imports, notes, club sharing and backups.
 
 ## 0.1.2 — 2026-10-28
 

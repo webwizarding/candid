@@ -1652,12 +1652,13 @@ button:disabled {
   top: 0;
   z-index: 5;
   min-height: 44px;
+  height: auto;
   max-width: 100%;
   background: var(--bg-app);
   border: 1px solid var(--border-hairline);
 }
 .settings-tabs [role="tab"] {
-  min-width: 110px;
+  min-width: 80px;
   min-height: 38px;
   padding: 0 18px;
   font-size: 13px;
@@ -1667,6 +1668,102 @@ button:disabled {
 }
 .settings-panel-narrow {
   max-width: 760px;
+}
+.settings-help {
+  max-width: 1120px;
+}
+.help-search-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.help-search-row > select {
+  max-width: 240px;
+}
+.help-topic-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: 20px;
+}
+.help-topic {
+  min-width: 0;
+  padding: 6px 20px;
+}
+.help-topic > h3 {
+  padding: 16px 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.help-question {
+  border-top: 1px solid var(--border-hairline);
+}
+.help-question > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 52px;
+  padding: 14px 0;
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  line-height: 1.6;
+  font-weight: 500;
+}
+.help-question > summary::-webkit-details-marker {
+  display: none;
+}
+.help-question > summary svg {
+  flex-shrink: 0;
+  color: var(--text-secondary);
+  transition: transform var(--motion-fast);
+}
+.help-question[open] > summary svg {
+  transform: rotate(180deg);
+}
+.help-question > summary:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.help-answer {
+  padding: 0 0 20px;
+  max-width: 64ch;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.help-answer ol {
+  list-style: decimal;
+  padding-left: 20px;
+  margin-top: 12px;
+}
+.help-answer li + li {
+  margin-top: 8px;
+}
+.help-answer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  margin-top: 14px;
+}
+@media (max-width: 767px) {
+  .help-topic-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .help-search-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .help-search-row > select {
+    max-width: 100%;
+  }
 }
 .settings-section > p {
   max-width: var(--ux-reading-width);
@@ -1736,8 +1833,9 @@ button:disabled {
     width: 100%;
   }
   .settings-tabs [role="tab"] {
-    min-width: 0;
-    padding: 0 8px;
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0 4px;
     font-size: 12px;
   }
   .settings-panel {

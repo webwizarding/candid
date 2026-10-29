@@ -1,6 +1,7 @@
 "use client";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { CanvasImport } from "./canvas-import";
+import { SettingsHelp } from "./settings-help";
 import { useRef, useState } from "react";
 import {
   Download,
@@ -178,6 +179,7 @@ export function StudentSettings() {
           <TabsTrigger value="connections">Connections</TabsTrigger>
           <TabsTrigger value="backups">Backups</TabsTrigger>
           <TabsTrigger value="privacy">Privacy</TabsTrigger>
+          <TabsTrigger value="help">Help</TabsTrigger>
         </TabsList>
         <TabsContent value="calendar" className="settings-panel">
           <div className="settings-columns">
@@ -314,8 +316,8 @@ export function StudentSettings() {
             </h2>
             <p>
               Includes personal events, assignments, course calendars,
-              preferences and club dashboards. Transfer a backup between your
-              macOS and Windows devices.
+              preferences, club dashboards, notes and scheduling. Transfer a
+              backup between your macOS and Windows devices.
             </p>
             <label className="flex gap-2 items-center text-xs mb-4">
               <input
@@ -390,6 +392,9 @@ export function StudentSettings() {
             </p>
           </section>
         </TabsContent>
+        <TabsContent value="help" className="settings-panel">
+          <SettingsHelp />
+        </TabsContent>
       </Tabs>
       <input
         ref={fileRef}
@@ -428,7 +433,7 @@ export function StudentSettings() {
           <DialogTitle>Review your import</DialogTitle>
           <DialogDescription>
             {preview?.kind === "backup"
-              ? `${preview.backup.events.length} events, ${preview.backup.assignments.length} assignments, ${preview.backup.calendars.length} calendars and ${preview.backup.clubs.length} clubs. Matching personal IDs will use the backup’s data. Your other items stay. Calendar preferences will be restored.`
+              ? `${preview.backup.events.length} events, ${preview.backup.assignments.length} assignments, ${preview.backup.calendars.length} calendars and ${preview.backup.clubs.length} clubs.${preview.backup.notes ? ` ${preview.backup.notes.length} notes, including trash.` : ""}${preview.backup.scheduling ? ` ${preview.backup.scheduling.types.length} meeting types and ${preview.backup.scheduling.bookings.length} bookings.` : ""} Matching IDs will use the backup’s data. Your other items stay. Calendar preferences${preview.backup.scheduling ? ", scheduling name and availability" : ""} will be restored.`
               : `${preview?.events.length ?? 0} event occurrences. Matching imported IDs will be updated. ${preview?.kind === "ics" && preview.recurring ? "Recurring events are expanded from 30 days ago through the next year, and can be edited individually." : ""}`}
           </DialogDescription>
           <div className="flex justify-end gap-2">

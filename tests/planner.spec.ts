@@ -61,6 +61,7 @@ test("recurring class, assignments, persistence and encrypted backups", async ({
 test("accessible desktop, phone and tablet routes have no document overflow", async ({
   page,
 }) => {
+  test.setTimeout(90000);
   for (const viewport of [
     { width: 1440, height: 1000 },
     { width: 768, height: 1024 },
@@ -95,12 +96,28 @@ test("accessible desktop, phone and tablet routes have no document overflow", as
         `${route} at ${viewport.width}`,
       ).toEqual([]);
       if (route === "/settings/") {
-        for (const section of ["Connections", "Backups", "Privacy"]) {
+        for (const section of ["Connections", "Backups", "Privacy", "Help"]) {
           await page.getByRole("tab", { name: section, exact: true }).click();
           await expect(page.locator(".settings-panel:visible")).toHaveCSS(
             "opacity",
             "1",
           );
+          if (section === "Help") {
+            await page
+              .getByLabel("Help topic", { exact: true })
+              .selectOption("Scheduling");
+            await page
+              .getByText("How do I share office hours or a study session?", {
+                exact: true,
+              })
+              .click();
+            await expect(
+              page.getByText(
+                "Ask them to send their saved booking request file back to you.",
+                { exact: true },
+              ),
+            ).toBeVisible();
+          }
           const panelResults = await new AxeBuilder({ page })
             .withTags(["wcag2a", "wcag2aa", "wcag21aa"])
             .analyze();
