@@ -1,5 +1,7 @@
 # Candid verification
 
+Windows signing setup follow-up, 2026-10-29: confirmed that the released Windows installer has no Authenticode certificate table. Microsoft Artifact Signing integration is now prepared with GitHub OIDC, Public Trust/publisher/timestamp checks and a required signing audit before upload. [Windows signing checks passed](https://github.com/webwizarding/candid/actions/runs/40976913053), including actual unsigned-file rejection, mocked policy/receipt cases and compatibility with Microsoft's pinned PowerShell module. No Azure signing account is configured yet; no genuine CA signature, replacement installer, or Smart App Control acceptance has been verified. Publisher identity validation and environment configuration remain required; see [setup steps](docs/WINDOWS_SIGNING.md).
+
 Verified locally on macOS on 2026-10-28.
 
 | Check | Result |

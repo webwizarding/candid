@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Prepared Microsoft Artifact Signing through GitHub OIDC, including the app, setup, helper binaries and embedded uninstaller.
+- Blocked Windows release uploads without configured, valid Public Trust publisher signatures, timestamps and matching signing receipts.
+- Added passing Windows signing-policy checks and a publisher-setup guide. The existing 0.1.4 installer remains unsigned; a signed replacement still requires Microsoft identity validation and account configuration.
+
 ## 0.1.4 — 2026-10-28
 
 - Added **Settings → Privacy → Reset Candid** for a full local fresh start: planner, assignments, calendars, notes and trash, clubs and peer identity, scheduling, focus history and preferences.
