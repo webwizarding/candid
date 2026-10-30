@@ -11,6 +11,8 @@ Choose your installer:
 
 [Installation help](docs/INSTALL.md) · [Changes](CHANGELOG.md). macOS builds are ad-hoc signed, not notarized; Windows installers are unsigned.
 
+**Windows Smart App Control:** the current Windows download can be blocked because it is unsigned. [Microsoft signing setup](docs/WINDOWS_SIGNING.md) is prepared; publisher verification is still required before a signed replacement can be released.
+
 ![Candid in dark mode](artifacts/candid-header-dark.png)
 
 ## Run locally
@@ -103,7 +105,7 @@ The former HR page components remain in `src/components/pages/` as reusable sour
 
 ## Publishing builds
 
-Run `npm run release:notices` before packaging to include dependency and font notices. The Windows release workflow builds EXE installer from an existing version tag and attaches them to that GitHub release. Maintainers can run it with `gh workflow run windows-release.yml -f tag=v0.1.4`.
+Run `npm run release:notices` before packaging to include dependency and font notices. Windows releases now require the [Microsoft signing setup](docs/WINDOWS_SIGNING.md). The workflow stops without signing configuration and verifies the app, setup and embedded uninstaller before uploading one EXE. Create a new release tag containing the signing scripts after publisher verification; existing published tags are not rewritten.
 
 ## License
 

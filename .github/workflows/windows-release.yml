@@ -6,7 +6,6 @@ on:
       tag:
         description: Existing release tag to build and attach installers to
         required: true
-        default: v0.1.4
         type: string
 
 permissions:
@@ -22,13 +21,38 @@ jobs:
     timeout-minutes: 45
     permissions:
       contents: write
+      id-token: write
+    environment: windows-signing
     env:
       RELEASE_TAG: ${{ inputs.tag }}
+      AZURE_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      AZURE_ARTIFACT_SIGNING_ENDPOINT: ${{ vars.AZURE_ARTIFACT_SIGNING_ENDPOINT }}
+      AZURE_ARTIFACT_SIGNING_ACCOUNT: ${{ vars.AZURE_ARTIFACT_SIGNING_ACCOUNT }}
+      AZURE_ARTIFACT_SIGNING_PROFILE: ${{ vars.AZURE_ARTIFACT_SIGNING_PROFILE }}
+      CANDID_WINDOWS_PUBLISHER: ${{ vars.CANDID_WINDOWS_PUBLISHER }}
     steps:
       - name: Check out release source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag }}
+      - name: Require publisher signing configuration
+        shell: pwsh
+        run: |
+          $config = Join-Path $env:RUNNER_TEMP 'candid-windows-signing.json'
+          & ./scripts/windows/prepare-signing.ps1 -OutputPath $config
+          "CANDID_SIGNING_CONFIG=$config" >> $env:GITHUB_ENV
+          "CANDID_SIGNING_AUDIT=$(Join-Path $env:RUNNER_TEMP 'candid-signing.jsonl')" >> $env:GITHUB_ENV
+      - name: Log in to Microsoft signing with GitHub OIDC
+        uses: azure/login@a641126d1b8aa4d1fa005f4f92df94a3a4c4c906 # v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - name: Install Microsoft signing module
+        shell: pwsh
+        run: Install-Module -Name ArtifactSigning -RequiredVersion 0.1.20 -Scope CurrentUser -Force -Repository PSGallery
       - name: Set up Node.js
         uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
@@ -50,7 +74,14 @@ jobs:
       - name: Run unit tests
         run: npm test
       - name: Build Windows installer
-        run: npm run desktop:build -- --bundles nsis
+        shell: pwsh
+        run: npm run desktop:build -- --bundles nsis --config "$env:CANDID_SIGNING_CONFIG"
+      - name: Verify signed application and installer
+        shell: pwsh
+        run: |
+          $assets = @(Get-ChildItem src-tauri/target/release/bundle/nsis -File -Filter '*.exe')
+          if ($assets.Count -ne 1) { throw 'Expected one Windows EXE installer.' }
+          & ./scripts/windows/verify-release.ps1 -AppPath ./src-tauri/target/release/candid.exe -InstallerPath $assets[0].FullName -AuditPath $env:CANDID_SIGNING_AUDIT
       - name: Upload Windows installer
         shell: pwsh
         env:

@@ -2,10 +2,10 @@
 
 Choose one download from [the latest release](https://github.com/webwizarding/candid/releases/latest):
 
-- **Windows** — `Candid-Windows-Setup.exe`. Run the installer. It requires Microsoft Edge WebView2. This installer is unsigned, so Windows may show a reputation warning.
+- **Windows** — `Candid-Windows-Setup.exe`. It requires Microsoft Edge WebView2. The current 0.1.4 installer is unsigned; Smart App Control can block it completely. A signed replacement is pending publisher verification. See [signing status and setup](WINDOWS_SIGNING.md).
 - **macOS · Apple Silicon** — `Candid-macOS-Apple-Silicon.dmg`. Open it and drag Candid into Applications. Requires macOS 12 or later on an Apple Silicon Mac. This build is ad-hoc signed for integrity, not Developer-ID signed or notarized. An Intel build is not included.
 
-Download only from the Candid repository. If your device or organization does not permit unsigned builds, follow the source build instructions in README.md. Windows installers are built in GitHub Actions; physical Windows runtime testing is still outstanding.
+Download only from the Candid repository. A local rebuild or different installer format does not provide a trusted publisher signature. Windows installers are built in GitHub Actions; physical Windows runtime testing is still outstanding.
 
 Quit the older running app before updating. Updates preserve your existing app data. Export an encrypted backup before updating or moving devices.
 

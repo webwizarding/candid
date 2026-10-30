@@ -1,0 +1,17 @@
+name: Windows signing checks
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signing-checks:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Microsoft's pinned signing module
+        shell: pwsh
+        run: Install-Module -Name ArtifactSigning -RequiredVersion 0.1.20 -Scope CurrentUser -Force -Repository PSGallery
+      - name: Test signing guards without Azure credentials
+        shell: pwsh
+        run: ./scripts/windows/test-signing.ps1
